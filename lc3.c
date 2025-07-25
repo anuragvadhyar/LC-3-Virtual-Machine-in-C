@@ -34,13 +34,12 @@ DWORD fdwMode, fdwOldMode;
 void disable_input_buffering()
 {
     hStdin = GetStdHandle(STD_INPUT_HANDLE);
-    GetConsoleMode(hStdin, &fdwOldMode); /* save old mode */
+    GetConsoleMode(hStdin, &fdwOldMode);
     fdwMode = fdwOldMode
-            ^ ENABLE_ECHO_INPUT  /* no input echo */
-            ^ ENABLE_LINE_INPUT; /* return when one or
-                                    more characters are available */
-    SetConsoleMode(hStdin, fdwMode); /* set new mode */
-    FlushConsoleInputBuffer(hStdin); /* clear buffer */
+            ^ ENABLE_ECHO_INPUT
+            ^ ENABLE_LINE_INPUT;
+    SetConsoleMode(hStdin, fdwMode);
+    FlushConsoleInputBuffer(hStdin);
 }
 
 void restore_input_buffering()
@@ -138,7 +137,7 @@ void update_flags(uint16_t r)
 	{
 		reg[R_COND] = FL_ZRO;
 	}
-	else if (reg[r] >> 15) /* a 1 in the left-most bit indicates negative */
+	else if (reg[r] >> 15)
 	{
 		reg[R_COND] = FL_NEG;
 	}
@@ -160,7 +159,6 @@ void read_image_file(FILE* file)
     uint16_t* p = memory + origin;
     size_t read = fread(p, sizeof(uint16_t), max_read, file);
 
-    /* swap to little endian */
     while (read-- > 0)
     {
         *p = swap16(*p);
@@ -334,19 +332,19 @@ void PUTS(void)
 void TRAPIN(void)
 {
     printf("Enter a single character:\n");
-    char temp = getchar();           // Reads one character from stdin
+    char temp = getchar();
 
-    putc(temp, stdout);                   // Echo the character back to the screen
+    putc(temp, stdout);
 	fflush(stdout);
-    reg[R_R0] = (uint16_t)temp;      // Store the ASCII value into R0
+    reg[R_R0] = (uint16_t)temp;
 	update_flags(R_R0);
 }
 
 void TRAP_GET_C(void)
 {
 	printf("Enter a single character:\n");
-    char temp = getchar();           // Reads one character from stdin
-    reg[R_R0] = (uint16_t)temp;      // Store the ASCII value into R0
+    char temp = getchar();
+    reg[R_R0] = (uint16_t)temp;
 	update_flags(R_R0);
 }
 
@@ -362,17 +360,17 @@ void TRAP_PUT_SP(void)
     uint16_t addr = reg[R_R0];
     while (memory[addr] != 0)
     {
-        char a = memory[addr] & 0x00FF;         // lower byte
-        putc(a, stdout);                        // print first character
+        char a = memory[addr] & 0x00FF;
+        putc(a, stdout);
 
-        char b = (memory[addr] >> 8) & 0x00FF;  // upper byte
+        char b = (memory[addr] >> 8) & 0x00FF;
         if (b != 0)
         {
-            putc(b, stdout);                    // print second character if not null
+            putc(b, stdout);
         }
-        addr++; // move to next word
+        addr++;
     }
-    fflush(stdout); // flush output to ensure all characters are printed
+    fflush(stdout);
 }
 
 void TRAPHALT(int *running)
@@ -385,7 +383,7 @@ int main(int argc, const char* argv[])
 	{
 		if (argc < 2)
 		{
-			/* show usage string */
+
 			printf("lc3 [image-file1] ...\n");
 			exit(2);
 		}
